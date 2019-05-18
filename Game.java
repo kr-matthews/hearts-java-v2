@@ -1,6 +1,5 @@
 package GamePlay;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import Players.ComputerPlayer;
@@ -14,29 +13,15 @@ public class Game {
   // a list of cumulative scores after each round
   private List<CumulativeScore> cumulativeScores;
   // default names to use for players
-  public static final List<String> defaultNames = new ArrayList<String>(4) {
-    {
-      add("You");
-      add("West");
-      add("North");
-      add("East");
-    }
-  };
 
-  // this is too complicated, the work should be put elsewhere probably
+  // initialize by supplying player names and whether they are human controlled
   public Game(List<String> playerNames, List<Boolean> humanPlayers) {
-    int index = 0;
-    while (index < playerNames.size()) {
+    for (int index = 0; index < playerNames.size(); index++) {
       if (humanPlayers.get(index)) {
         players.add(new HumanPlayer(playerNames.get(index)));
       } else {
         players.add(new ComputerPlayer(playerNames.get(index)));
       }
-      index++;
-    }
-    while (index < defaultNames.size()) {
-      players.add(new ComputerPlayer(defaultNames.get(index)));
-      index++;
     }
   }
 
