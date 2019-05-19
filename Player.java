@@ -9,7 +9,7 @@ public abstract class Player {
   // player name
   private String name;
   // the cards in their hand
-  private Hand hand;
+  private Hand hand = new Hand();
 
   public Player(String name) {
     this.name = name;
@@ -36,7 +36,7 @@ public abstract class Player {
   }
 
   // which card to play into the current trick (given trick & game states)
-  public abstract void pickCardToPlay(); // TODO: will need to take arguments
+  public abstract Card pickCardToPlay(); // TODO: will need to take arguments
 
   // which cards to pass, given pass direction and game state
   public abstract OrderedCardSet pickCardsToPass(); // TODO: will need to take arguments
@@ -45,9 +45,11 @@ public abstract class Player {
   // only call after everyone has chosen what to pass
   public void passCards(OrderedCardSet cardsToPass, Player player) {
     for (Card card : cardsToPass) {
-      this.removeFromHand(card);
-      player.addToHand(card);
+      removeFromHand(card);
     }
+    player.receiveCards(cardsToPass);
   }
+
+  public abstract void receiveCards(OrderedCardSet cards);
 
 }

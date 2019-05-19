@@ -15,46 +15,52 @@ public class Game {
   // the card which must lead first each round
   private Card startingCard;
   // the players playing the game
-  private List<Player> players = new ArrayList<Player>(numberOfPlayers);
+  public List<Player> players = new ArrayList<Player>(numberOfPlayers);
   // a list of cumulative scores after each round
-  private List<CumulativeScore> cumulativeScores = new ArrayList<CumulativeScore>(10);
+  private List<ScoreList> scoreHistory = new ArrayList<ScoreList>(10);
   // the deck to be used for playing (shuffle before each new use!)
   private Deck deck = new Deck();
 
-  public int getCurrentScore(String name) {
-    if (cumulativeScores.size() == 0) {
+  // return the score of a player at the end of the most recent round
+  private int getCurrentScore(int playerIndex) {
+    if (scoreHistory.size() == 0) {
       return 0;
     }
-    return cumulativeScores.get(cumulativeScores.size() - 1).get(name);
+    return scoreHistory.get(scoreHistory.size() - 1).get(playerIndex);
   }
 
+  // the minimum score among all players
   private int getMinScore() {
-    int lowestScore = Integer.MAX_VALUE;
-    for (Player player : players) {
-      lowestScore = Math.min(lowestScore, this.getCurrentScore(player.getName()));
+    int lowestScore = Integer.MIN_VALUE;
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      lowestScore = Math.min(lowestScore, this.getCurrentScore(playerIndex));
     }
     return lowestScore;
   }
 
+  // the maximum score among all players
   private int getMaxScore() {
     int highestScore = Integer.MAX_VALUE;
-    for (Player player : players) {
-      highestScore = Math.max(highestScore, this.getCurrentScore(player.getName()));
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      highestScore = Math.max(highestScore, this.getCurrentScore(playerIndex));
     }
     return highestScore;
   }
 
+  // is there a strict first place (not shared)
   private boolean hasUniqueFirstPlace() {
+    int minScore = getMinScore();
     int howMany = 0;
-    for (Player player : players) {
-      if (getCurrentScore(player.getName()) == getMinScore()) {
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      if (getCurrentScore(playerIndex) == minScore) {
         howMany++;
       }
     }
     return howMany == 1;
   }
 
-  public boolean isOver() {
+  // the game is over if someone hits 100 and there is a clear winner
+  private boolean isOver() {
     return hasUniqueFirstPlace() & getMaxScore() >= 100;
   }
 
@@ -72,34 +78,98 @@ public class Game {
       }
     }
     // discard from top of deck until even split between all players
-    // assumes deck is sorted
+    // assumes deck is sorted (maybe 2D should be removed first??)
     while (deck.size() % numberOfPlayers > 0) {
+      System.out.println("Playing without the " + deck.getFirst() + ".");
       deck.removeFirst();
     }
     // set lowest card, to lead each round
     startingCard = deck.getFirst();
   }
 
-  public void addCumulativeScore(CumulativeScore score) {
-    cumulativeScores.add(score);
+  // add to the score history; account for shooting the moon and such
+  private void addScore(ScoreList score) {
+    ScoreList newTotalScore = new ScoreList();
+    if (score.shotTheMoon()) {
+      // if the moon was shot then modify the score
+      if (normalShootingWouldLose(score.indexOf(26))) {
+        // if adding 26 to everyone else would cause the winner to lose the game
+        // then subtract 26 from the winner instead
+        for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+          score.set(playerIndex, -score.get(playerIndex));
+        }
+      } else {
+        // otherwise winner gets 0 and everyone else gets 26
+        for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+          score.set(playerIndex, -(score.get(playerIndex) - 13) + 13);
+        }
+      }
+    }
+    // now actually add scores, after potential above modifications
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      newTotalScore.set(playerIndex, getCurrentScore(playerIndex) + score.get(playerIndex));
+    }
+    scoreHistory.add(score);
+  }
+
+  // would adding 26 to everyone else cause them to lose?
+  // annoying because can't use the methods already written
+  private boolean normalShootingWouldLose(int winner) {
+    ScoreList hypotheticalNewTotalScore = new ScoreList();
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      if (playerIndex == winner) {
+        hypotheticalNewTotalScore.set(playerIndex, 0);
+      } else {
+        hypotheticalNewTotalScore.set(playerIndex, 26);
+      }
+    }
   }
 
   // to display after each round
-  public void displayCumulativeScores() {
+  private void displayScoresHistory() {
     int maxNameWidth = 03;
-    for (Player player : players) {
-      maxNameWidth = Math.max(maxNameWidth, player.getName().length());
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      maxNameWidth = Math.max(maxNameWidth, players.get(playerIndex).getName().length());
     }
-    for (Player player : players) {
-      System.out.printf("%" + maxNameWidth + "s ", player.getName());
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      System.out.printf("%" + maxNameWidth + "s ", players.get(playerIndex).getName());
     }
     System.out.println();
-    for (CumulativeScore scores : cumulativeScores) {
-      for (Player player : players) {
-        System.out.printf("%" + maxNameWidth + "s ", scores.get(player.getName()));
+    for (ScoreList scores : scoreHistory) {
+      for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+        System.out.printf("%" + maxNameWidth + "s ", scores.get(playerIndex));
       }
       System.out.println();
     }
+  }
+
+  private void displayWinner() {
+    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
+      if (getCurrentScore(playerIndex) == getMinScore()) {
+        System.out.println();
+        System.out.println("The winner is " + players.get(playerIndex).getName() + ". Congratulations!");
+      }
+    }
+  }
+
+  public void play() {
+    // while the game is not over, play a round
+    while (!isOver()) {
+      // initialize
+      deck.shuffle();
+      int roundNumber = scoreHistory.size() + 1;
+      Round round = new Round(deck, players, roundNumber, startingCard);
+      // play round
+      round.play();
+      // update score and display them
+      addScore(round.getScore());
+      System.out.println();
+      displayScoresHistory();
+      System.out.println();
+    }
+    // display winner
+    displayWinner();
+
   }
 
 }
