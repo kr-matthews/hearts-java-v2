@@ -14,7 +14,7 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  public Card pickCardToPlay() {
+  public Card pickCardToPlay(OrderedCardSet cardsPlayed, int numberOfPlayers, boolean areHeartsBroken) {
     // display hand to player
     System.out.println();
     System.out.println("Your hand:");

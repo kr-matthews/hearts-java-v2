@@ -36,7 +36,7 @@ public abstract class Player {
   }
 
   // which card to play into the current trick (given trick & game states)
-  public abstract Card pickCardToPlay(); // TODO: will need to take arguments
+  public abstract Card pickCardToPlay(OrderedCardSet cardsPlayed, int numberOfPlayers, boolean areHeartsBroken);
 
   // which cards to pass, given pass direction and game state
   public abstract OrderedCardSet pickCardsToPass(String playerName); // TODO: will need to take arguments

@@ -26,6 +26,8 @@ public class Round {
   private int firstToPlay;
   // the card which leads the first trick
   private Card startingCard;
+  // whether a heart has been played
+  boolean areHeartsBroken = false;
 
   public ScoreList getScore() {
     return score;
@@ -128,8 +130,6 @@ public class Round {
     int firstPlayerIndex;
     // the cards being played
     OrderedCardSet playedCards = new OrderedCardSet();
-    // whether a heart has been played
-    boolean areHeartsBroken = false;
 
     // the lead suit (suit of first card played)
     // assumes at least one card has been played
@@ -173,11 +173,11 @@ public class Round {
         // for each player
         Player currentPlayer = players.get((firstPlayerIndex + playerIndex) % numberOfPlayers);
         // ask them to pick a card to play
-        Card cardToPlay = currentPlayer.pickCardToPlay();
+        Card cardToPlay = currentPlayer.pickCardToPlay(playedCards, numberOfPlayers, areHeartsBroken);
         while (!validCardToPlay(cardToPlay, currentPlayer.getHand(), currentPlayer instanceof Players.HumanPlayer)) {
           // if the card was not a valid one to play then ask again
           // the validity test will display the reason to human players
-          cardToPlay = currentPlayer.pickCardToPlay();
+          cardToPlay = currentPlayer.pickCardToPlay(playedCards, numberOfPlayers, areHeartsBroken);
         }
         // remove the card from their hand and add it to the trick
         currentPlayer.removeFromHand(cardToPlay);

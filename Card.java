@@ -13,6 +13,8 @@ public class Card implements Comparable<Card> {
 
   // common cards
   public static final Card queenOfSpades = new Card(Rank.Q, Suit.SPADES);
+  public static final Card kingOfSpades = new Card(Rank.K, Suit.SPADES);
+  public static final Card aceOfSpades = new Card(Rank.A, Suit.SPADES);
 
   public Rank getRank() {
     return rank;

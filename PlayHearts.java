@@ -17,14 +17,14 @@ public class PlayHearts {
     names.add("Kevin");
     names.add("North");
     names.add("Easter Bunny");
-    names.add("East");
+    // names.add("East");
 
     List<Boolean> isHuman = new LinkedList<Boolean>();
     isHuman.add(false);
     isHuman.add(true);
     isHuman.add(false);
     isHuman.add(false);
-    isHuman.add(false);
+    // isHuman.add(false);
 
     List<Player> players = new ArrayList<Player>(4);
     for (int index = 0; index < names.size(); index++) {
