@@ -78,4 +78,8 @@ public class Card implements Comparable<Card> {
     return true;
   }
 
+  public String compactToString() {
+    return getRank().toString() + getSuit().compactToString();
+  }
+
 }

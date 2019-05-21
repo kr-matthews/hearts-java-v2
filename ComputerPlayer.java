@@ -13,27 +13,29 @@ public class ComputerPlayer extends Player {
   // doesn't remove card, only picks it
   public Card pickCardToPlay() {
     // TODO temporary solution (TODO) shuffle and pick first valid card
-    System.out.println("TODO: computer pick a card to play now!");
-    return null;
+    getHand().shuffle();
+    Card cardToPlay = getHand().get(0);
+    getHand().sort();
+    return cardToPlay;
   }
 
   @Override
   // doesn't remove cards, only picks them
-  public OrderedCardSet pickCardsToPass() {
+  public OrderedCardSet pickCardsToPass(String playerName) {
     // TODO temporary solution: pick final three cards
-    System.out.println("TODO: computer pick 3 cards to pass now!");
     OrderedCardSet cardsToPass = new OrderedCardSet();
     for (int i = 0; i < 3; i++) {
-      cardsToPass.add(this.getHand().get(12 - i));
+      cardsToPass.add(getHand().get(getHand().size() - i - 1));
     }
     return cardsToPass;
   }
 
   @Override
-  public void receiveCards(OrderedCardSet cards) {
+  public void receiveCards(OrderedCardSet cards, String playerName) {
     for (Card card : cards) {
       this.addToHand(card);
     }
+    getHand().sort();
   }
 
 }

@@ -39,7 +39,7 @@ public abstract class Player {
   public abstract Card pickCardToPlay(); // TODO: will need to take arguments
 
   // which cards to pass, given pass direction and game state
-  public abstract OrderedCardSet pickCardsToPass(); // TODO: will need to take arguments
+  public abstract OrderedCardSet pickCardsToPass(String playerName); // TODO: will need to take arguments
 
   // these remove/add 3 cards to respective hands
   // only call after everyone has chosen what to pass
@@ -47,9 +47,9 @@ public abstract class Player {
     for (Card card : cardsToPass) {
       removeFromHand(card);
     }
-    player.receiveCards(cardsToPass);
+    player.receiveCards(cardsToPass, getName());
   }
 
-  public abstract void receiveCards(OrderedCardSet cards);
+  public abstract void receiveCards(OrderedCardSet cards, String playerName);
 
 }

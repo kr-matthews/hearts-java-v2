@@ -3,8 +3,6 @@ package GamePlay;
 import java.util.ArrayList;
 import java.util.List;
 
-import Players.ComputerPlayer;
-import Players.HumanPlayer;
 import Players.Player;
 import playingCards.Card;
 import playingCards.Deck;
@@ -15,7 +13,7 @@ public class Game {
   // the card which must lead first each round
   private Card startingCard;
   // the players playing the game
-  public List<Player> players = new ArrayList<Player>(numberOfPlayers);
+  public List<Player> players = new ArrayList<Player>();
   // a list of cumulative scores after each round
   private List<ScoreList> scoreHistory = new ArrayList<ScoreList>(10);
   // the deck to be used for playing (shuffle before each new use!)
@@ -31,7 +29,7 @@ public class Game {
 
   // the minimum score among all players
   private int getMinScore() {
-    int lowestScore = Integer.MIN_VALUE;
+    int lowestScore = Integer.MAX_VALUE;
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
       lowestScore = Math.min(lowestScore, this.getCurrentScore(playerIndex));
     }
@@ -40,7 +38,7 @@ public class Game {
 
   // the maximum score among all players
   private int getMaxScore() {
-    int highestScore = Integer.MAX_VALUE;
+    int highestScore = Integer.MIN_VALUE;
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
       highestScore = Math.max(highestScore, this.getCurrentScore(playerIndex));
     }
@@ -64,27 +62,36 @@ public class Game {
     return hasUniqueFirstPlace() & getMaxScore() >= 100;
   }
 
-  // initialize by supplying player names and whether they are human controlled
-  // remove the lowest clubs from the deck until an even split remains
-  public Game(List<String> playerNames, List<Boolean> isHuman) {
+  // initialize things and remove the lowest clubs from the deck until an even
+  // split remains
+  public Game(List<Player> players) {
+    // set players
+    this.players = players;
     // set number of players
-    numberOfPlayers = playerNames.size();
-    // initialize players
-    for (int index = 0; index < numberOfPlayers; index++) {
-      if (isHuman.get(index)) {
-        players.add(new HumanPlayer(playerNames.get(index)));
-      } else {
-        players.add(new ComputerPlayer(playerNames.get(index)));
-      }
-    }
+    numberOfPlayers = players.size();
     // discard from top of deck until even split between all players
     // assumes deck is sorted (maybe 2D should be removed first??)
+    displayPlayers();
     while (deck.size() % numberOfPlayers > 0) {
       System.out.println("Playing without the " + deck.getFirst() + ".");
       deck.removeFirst();
     }
     // set lowest card, to lead each round
     startingCard = deck.getFirst();
+  }
+
+  private void displayPlayers() {
+    System.out.println("The players:");
+    for (Player player : players) {
+      String type;
+      if (player instanceof Players.HumanPlayer) {
+        type = "human";
+      } else {
+        type = "computer";
+      }
+      System.out.println(player.getName() + " (" + type + ")");
+    }
+    System.out.println();
   }
 
   // add to the score history; account for shooting the moon and such
@@ -107,22 +114,15 @@ public class Game {
     }
     // now actually add scores, after potential above modifications
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
-      newTotalScore.set(playerIndex, getCurrentScore(playerIndex) + score.get(playerIndex));
+      newTotalScore.add(getCurrentScore(playerIndex) + score.get(playerIndex));
     }
-    scoreHistory.add(score);
+    scoreHistory.add(newTotalScore);
   }
 
   // would adding 26 to everyone else cause them to lose?
-  // annoying because can't use the methods already written
+  // TODO: annoying because can't use the methods already written
   private boolean normalShootingWouldLose(int winner) {
-    ScoreList hypotheticalNewTotalScore = new ScoreList();
-    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
-      if (playerIndex == winner) {
-        hypotheticalNewTotalScore.set(playerIndex, 0);
-      } else {
-        hypotheticalNewTotalScore.set(playerIndex, 26);
-      }
-    }
+    return false;
   }
 
   // to display after each round
@@ -131,6 +131,7 @@ public class Game {
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
       maxNameWidth = Math.max(maxNameWidth, players.get(playerIndex).getName().length());
     }
+    System.out.println("Scores:");
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
       System.out.printf("%" + maxNameWidth + "s ", players.get(playerIndex).getName());
     }
@@ -146,8 +147,13 @@ public class Game {
   private void displayWinner() {
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
       if (getCurrentScore(playerIndex) == getMinScore()) {
+        // if they have the lowest score then they won
         System.out.println();
-        System.out.println("The winner is " + players.get(playerIndex).getName() + ". Congratulations!");
+        System.out.print("The winner is " + players.get(playerIndex).getName() + ".");
+        if (players.get(playerIndex) instanceof Players.HumanPlayer) {
+          // if the winner is human controlled then congratulate them
+          System.out.println(" Congratulations!");
+        }
       }
     }
   }
@@ -163,7 +169,6 @@ public class Game {
       round.play();
       // update score and display them
       addScore(round.getScore());
-      System.out.println();
       displayScoresHistory();
       System.out.println();
     }
