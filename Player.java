@@ -1,5 +1,8 @@
 package Players;
 
+import java.io.InputStream;
+import java.io.PrintStream;
+
 import playingCards.Card;
 import playingCards.Hand;
 import playingCards.OrderedCardSet;
@@ -10,6 +13,10 @@ public abstract class Player {
   private String name;
   // the cards in their hand
   private Hand hand = new Hand();
+  // where to get input
+  protected InputStream inputStream = System.in;
+  // where to put output
+  protected PrintStream printStream = System.out;
 
   public Player(String name) {
     this.name = name;
@@ -17,6 +24,10 @@ public abstract class Player {
 
   public String getName() {
     return name;
+  }
+
+  public PrintStream getPrintStream() {
+    return printStream;
   }
 
   public Hand getHand() {

@@ -16,7 +16,7 @@ public class PlayHearts {
     names.add("South");
     names.add("Kevin");
     names.add("North");
-    names.add("Easter Bunny");
+    // names.add("Easter Bunny");
     // names.add("East");
 
     List<Boolean> isHuman = new LinkedList<Boolean>();

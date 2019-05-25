@@ -1,5 +1,6 @@
 package GamePlay;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,7 +100,7 @@ public class Round {
             players.get((playerIndex + passDistance) % numberOfPlayers));
       }
     }
-    // the starting card may have changed hands, so set firstplayer now
+    // the starting card may have changed hands, so set firstPlayer now
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
       if (players.get(playerIndex).getHand().contains(startingCard)) {
         firstToPlay = playerIndex;
@@ -174,7 +175,7 @@ public class Round {
         Player currentPlayer = players.get((firstPlayerIndex + playerIndex) % numberOfPlayers);
         // ask them to pick a card to play
         Card cardToPlay = currentPlayer.pickCardToPlay(playedCards, numberOfPlayers, areHeartsBroken);
-        while (!validCardToPlay(cardToPlay, currentPlayer.getHand(), currentPlayer instanceof Players.HumanPlayer)) {
+        while (!validCardToPlay(cardToPlay, currentPlayer.getHand(), currentPlayer.getPrintStream())) {
           // if the card was not a valid one to play then ask again
           // the validity test will display the reason to human players
           cardToPlay = currentPlayer.pickCardToPlay(playedCards, numberOfPlayers, areHeartsBroken);
@@ -202,12 +203,10 @@ public class Round {
       System.out.println();
     }
 
-    private boolean validCardToPlay(Card card, Hand hand, boolean displaying) {
+    private boolean validCardToPlay(Card card, Hand hand, PrintStream printStream) {
       if (!hand.contains(card)) {
         // you must play a card from your hand
-        if (displaying) {
-          System.out.println("You don't have the " + card + ".");
-        }
+        printStream.println("You don't have the " + card + ".");
         return false;
       }
 
@@ -215,9 +214,7 @@ public class Round {
         // if you aren't leading
         if (!card.getSuit().equals(getLeadSuit()) & hand.hasSuit(getLeadSuit())) {
           // you must follow suit if possible
-          if (displaying) {
-            System.out.println("You must follow the lead suit: " + getLeadSuit());
-          }
+          printStream.println("You must follow the lead suit: " + getLeadSuit());
           return false;
         }
       }
@@ -226,31 +223,23 @@ public class Round {
         // if this is the first trick of the round
         if (numberOfCardsPlayed() == 0 & !card.equals(startingCard)) {
           // and if you are going first then you must lead the starting card
-          if (displaying) {
-            System.out.println("You must lead with the " + startingCard + ".");
-          }
+          printStream.println("You must lead with the " + startingCard + ".");
           return false;
         }
         if (card.isPointsCard() & !hand.isAllPointsCards()) {
           // can't play a point card on the first trick
-          if (displaying) {
-            System.out.println("You cannot play a heart or the queen of spades on the first trick.");
-          }
+          printStream.println("You cannot play a heart or the queen of spades on the first trick.");
           return false;
         }
       }
 
       if (numberOfCardsPlayed() == 0 & card.isHeart() & !areHeartsBroken & !hand.isAllHearts()) {
         // can't lead a heart until hearts have been broken
-        if (displaying) {
-          System.out.println("Cannot lead with the " + card + " because hearts have not been broken yet.");
-        }
+        printStream.println("Cannot lead with the " + card + " because hearts have not been broken yet.");
         return false;
       }
-
       return true;
     }
-
   }
 
 }

@@ -16,14 +16,14 @@ public class HumanPlayer extends Player {
   @Override
   public Card pickCardToPlay(OrderedCardSet cardsPlayed, int numberOfPlayers, boolean areHeartsBroken) {
     // display hand to player
-    System.out.println();
-    System.out.println("Your hand:");
-    getHand().display();
-    System.out.println();
+    printStream.println();
+    printStream.println("Your hand:");
+    getHand().display(printStream);
+    printStream.println();
     // instructions
-    System.out.println("Enter the index of a card to play it:");
+    printStream.println("Enter the index of a card to play it:");
     // show options
-    getHand().giveOptions();
+    getHand().giveOptions(printStream);
     // collect index
     int index = getIndex(1, getHand().size(), new HashSet<Integer>());
     Card cardToPlay = getHand().get(index - 1);
@@ -32,15 +32,18 @@ public class HumanPlayer extends Player {
 
   private int getIndex(int lowerBound, int upperBound, Set<Integer> forbiddenIndices) {
     int index = -1;
-    Scanner scanner = new Scanner(System.in);
+    Scanner scanner = new Scanner(inputStream);
     while (index < lowerBound || index > upperBound || forbiddenIndices.contains(index)) {
       // while the index is invalid, ask for another one
+      printStream.println("Please provide a valid index.");
       while (!scanner.hasNextInt()) {
         // while the input is not an integer, discard it
+        printStream.println("Please provide an integer.");
         scanner.next();
       }
       index = scanner.nextInt();
     }
+    printStream.println("Index " + index + " received.");
     // scanner.close();
     return index;
   }
@@ -48,14 +51,14 @@ public class HumanPlayer extends Player {
   @Override
   public OrderedCardSet pickCardsToPass(String playerName) {
     // display hand to player
-    System.out.println();
-    System.out.println("Your hand:");
-    getHand().display();
-    System.out.println();
+    printStream.println();
+    printStream.println("Your hand:");
+    getHand().display(printStream);
+    printStream.println();
     // instructions
-    System.out.println("Enter three distinct indices of cards to pass to " + playerName + ":");
+    printStream.println("Enter three distinct indices of cards to pass to " + playerName + ":");
     // show options
-    getHand().giveOptions();
+    getHand().giveOptions(printStream);
     // collect indices
     Set<Integer> indices = new HashSet<Integer>();
     for (int i = 0; i < 3; i++) {
@@ -63,10 +66,10 @@ public class HumanPlayer extends Player {
     }
     // get cards based on indices, display them too
     OrderedCardSet cardsToPass = new OrderedCardSet();
-    System.out.println("\nCards passed to " + playerName + ":");
+    printStream.println("\nCards passed to " + playerName + ":");
     for (int index : indices) {
       cardsToPass.add(getHand().get(index - 1));
-      System.out.println(getHand().get(index - 1));
+      printStream.println(getHand().get(index - 1));
     }
     return cardsToPass;
   }
@@ -74,13 +77,13 @@ public class HumanPlayer extends Player {
   @Override
   public void receiveCards(OrderedCardSet cards, String playerName) {
     cards.sort();
-    System.out.println("\nCards recieved from " + playerName + ":");
+    printStream.println("\nCards recieved from " + playerName + ":");
     for (Card card : cards) {
       addToHand(card);
-      System.out.println(card);
+      printStream.println(card);
     }
     getHand().sort();
-    System.out.println();
+    printStream.println();
   }
 
 }
