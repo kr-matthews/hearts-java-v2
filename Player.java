@@ -3,6 +3,8 @@ package Players;
 import java.io.InputStream;
 import java.io.PrintStream;
 
+import GamePlay.Round;
+import GamePlay.Round.Trick;
 import playingCards.Card;
 import playingCards.Hand;
 import playingCards.OrderedCardSet;
@@ -18,39 +20,46 @@ public abstract class Player {
   // where to put output
   protected PrintStream printStream = System.out;
 
+  // constructor: set player name
   public Player(String name) {
     this.name = name;
   }
 
+  // get player name
   public String getName() {
     return name;
   }
 
+  // get the print stream
   public PrintStream getPrintStream() {
     return printStream;
   }
 
+  // get the player's hand
   public Hand getHand() {
     return hand;
   }
 
+  // add a card to the hand
   public void addToHand(Card card) {
     hand.add(card);
   }
 
+  // remove a card from the hand
+  // show warning if it failed
   public void removeFromHand(Card card) {
     if (hand.contains(card)) {
       hand.remove(card);
     } else {
-      System.out.println("Unsuccessfully tried to remove " + card + " from " + name);
+      printStream.println("Unsuccessfully tried to remove " + card + " from " + name);
     }
   }
 
   // which card to play into the current trick (given trick & game states)
-  public abstract Card pickCardToPlay(OrderedCardSet cardsPlayed, int numberOfPlayers, boolean areHeartsBroken);
+  public abstract Card pickCardToPlay(Round round, Trick trick);
 
   // which cards to pass, given pass direction and game state
-  public abstract OrderedCardSet pickCardsToPass(String playerName); // TODO: will need to take arguments
+  public abstract OrderedCardSet pickCardsToPass(String playerName); // should have other param
 
   // these remove/add 3 cards to respective hands
   // only call after everyone has chosen what to pass
@@ -61,6 +70,15 @@ public abstract class Player {
     player.receiveCards(cardsToPass, getName());
   }
 
-  public abstract void receiveCards(OrderedCardSet cards, String playerName);
+  public void receiveCards(OrderedCardSet cards, String playerName) {
+    cards.sort();
+    printStream.println("\nCards recieved from " + playerName + ":");
+    for (Card card : cards) {
+      addToHand(card);
+      printStream.println(card);
+    }
+    getHand().sort();
+    printStream.println();
+  }
 
 }
