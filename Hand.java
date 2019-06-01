@@ -106,13 +106,25 @@ public class Hand extends OrderedCardSet {
     return highestSafe;
   }
 
+  // how many of the suit do they have?
+  public int howMany(Suit suit) {
+    int count = 0;
+    for (Card card : this) {
+      if (card.getSuit().equals(suit)) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
   // have exactly one card of the given suit?
   public boolean hasExactlyOne(Suit suit) {
-    return hasSuit(suit) & (getLowest(suit) == getHighest(suit));
+    return howMany(suit) == 1;
   }
 
   // are spade tricks something we want to avoid
   // ** designed with 4 players in mind **
+  // works ok with more I guess, a bit dangerous with 3
   public boolean poorSpadeDistribution() {
     int goodSpades = 0;
     int badSpades = 0;
@@ -140,6 +152,28 @@ public class Hand extends OrderedCardSet {
     // otherwise, poor if less than 4 covering the queen,
     // or if less than 2 net
     return goodSpades - badSpades < 2;
+  }
+
+  // list of all cards of given suit
+  public OrderedCardSet getAll(Suit suit) {
+    OrderedCardSet result = new OrderedCardSet();
+    for (Card card : this) {
+      if (card.getSuit().equals(suit)) {
+        result.add(card);
+      }
+    }
+    return result;
+  }
+
+  // list of all cards of given rank
+  public OrderedCardSet getAll(Rank rank) {
+    OrderedCardSet result = new OrderedCardSet();
+    for (Card card : this) {
+      if (card.getRank().equals(rank)) {
+        result.add(card);
+      }
+    }
+    return result;
   }
 
 }

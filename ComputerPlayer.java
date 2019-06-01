@@ -1,5 +1,7 @@
 package Players;
 
+import java.util.Collections;
+
 import GamePlay.Round;
 import GamePlay.Round.Trick;
 import playingCards.Card;
@@ -226,10 +228,65 @@ public class ComputerPlayer extends Player {
   @Override
   // doesn't remove cards, only picks them
   public OrderedCardSet pickCardsToPass(String playerName) {
-    // TODO temporary solution: pick final three cards
     OrderedCardSet cardsToPass = new OrderedCardSet();
-    for (int i = 0; i < 3; i++) {
-      cardsToPass.add(getHand().get(getHand().size() - i - 1));
+    int remaining = 3;
+
+    // first deal with spades if necessary
+    if (getHand().poorSpadeDistribution()) {
+      // if spades are dangerous to self,
+      // then get rid of high spades
+      if (getHand().contains(Card.queenOfSpades)) {
+        cardsToPass.add(Card.queenOfSpades);
+      }
+      if (getHand().contains(Card.kingOfSpades)) {
+        cardsToPass.add(Card.kingOfSpades);
+      }
+      if (getHand().contains(Card.aceOfSpades)) {
+        cardsToPass.add(Card.aceOfSpades);
+      }
+    }
+    remaining = 3 - cardsToPass.size();
+
+    // here, consider writing howManyHeartsNeedToBePassed
+    // and then passing that many hearts, before short-suiting
+
+    // now short-suit yourself in clubs/diamonds if possible
+    if (getHand().howMany(Suit.DIAMONDS) <= remaining) {
+      cardsToPass.addAll(getHand().getAll(Suit.DIAMONDS));
+      remaining = 3 - cardsToPass.size();
+    }
+    if (getHand().howMany(Suit.CLUBS) <= remaining) {
+      cardsToPass.addAll(getHand().getAll(Suit.CLUBS));
+      remaining = 3 - cardsToPass.size();
+    }
+    // or leave self with 1 club if possible
+    else if (getHand().howMany(Suit.CLUBS) == remaining + 1) {
+      // this would guarantee remaining is 0
+      cardsToPass.addAll(getHand().getAll(Suit.CLUBS));
+      cardsToPass.remove(getHand().getHighest(Suit.CLUBS));
+      remaining = 3 - cardsToPass.size();
+    }
+    if (remaining == 0) {
+      return cardsToPass;
+    }
+
+    // now get rid of highest remaining cards
+    for (int i = 12; i >= 0; i--) {
+      // go through Aces, then Kings, so on
+      OrderedCardSet cardsOfRank = getHand().getAll(Rank.values()[i]);
+      cardsOfRank.sort();
+      Collections.reverse(cardsOfRank);
+      // go through in order H S D C
+      for (Card card : cardsOfRank) {
+        if (cardsToPass.size() == 3) {
+          // if done, return
+          return cardsToPass;
+        }
+        if (!(card.getSuit().equals(Suit.SPADES) & card.getRank().compareTo(Rank.J) < 0) & !cardsToPass.contains(card))
+          // don't pass AKQ of S, as we would have above
+          // and don't pass if already passed
+          cardsToPass.add(card);
+      }
     }
     return cardsToPass;
   }
