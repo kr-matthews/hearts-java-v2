@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
-import GamePlay.Round;
-import GamePlay.Round.Trick;
+import GamePlay.Game.Round;
+import GamePlay.Game.Round.Trick;
 import playingCards.Card;
 import playingCards.OrderedCardSet;
 

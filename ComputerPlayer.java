@@ -2,8 +2,8 @@ package Players;
 
 import java.util.Collections;
 
-import GamePlay.Round;
-import GamePlay.Round.Trick;
+import GamePlay.Game.Round;
+import GamePlay.Game.Round.Trick;
 import playingCards.Card;
 import playingCards.OrderedCardSet;
 import playingCards.Rank;
@@ -282,21 +282,14 @@ public class ComputerPlayer extends Player {
           // if done, return
           return cardsToPass;
         }
-        if (!(card.getSuit().equals(Suit.SPADES) & card.getRank().compareTo(Rank.J) < 0) & !cardsToPass.contains(card))
-          // don't pass AKQ of S, as we would have above
+        if (!card.getSuit().equals(Suit.SPADES) & !cardsToPass.contains(card))
+          // don't pass spades, we took care of them above
+          // would only be potentially dangerous to pass more
           // and don't pass if already passed
           cardsToPass.add(card);
       }
     }
     return cardsToPass;
   }
-
-//  @Override
-//  public void receiveCards(OrderedCardSet cards, String playerName) {
-//    for (Card card : cards) {
-//      this.addToHand(card);
-//    }
-//    getHand().sort();
-//  }
 
 }

@@ -16,6 +16,8 @@ public class OrderedCardSet extends LinkedList<Card> {
     Collections.sort(this);
   }
 
+  // how many points are in the hand
+  // hearts count for 1 each, QS is 13
   public int getPointsValue() {
     int pointsTotal = 0;
     for (Card card : this) {

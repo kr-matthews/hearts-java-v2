@@ -15,6 +15,7 @@ public class Card implements Comparable<Card> {
   public static final Card queenOfSpades = new Card(Rank.Q, Suit.SPADES);
   public static final Card kingOfSpades = new Card(Rank.K, Suit.SPADES);
   public static final Card aceOfSpades = new Card(Rank.A, Suit.SPADES);
+  public static final Card twoOfDiamonds = new Card(Rank.N2, Suit.DIAMONDS);
 
   public Rank getRank() {
     return rank;
@@ -39,9 +40,15 @@ public class Card implements Comparable<Card> {
     return this.isHeart() || this.isQueenOfSpades();
   }
 
+  // example: Q of HEARTS
   @Override
   public String toString() {
     return rank + " of " + suit;
+  }
+
+  // example: QH
+  public String compactToString() {
+    return getRank().toString() + getSuit().compactToString();
   }
 
   // lexicographically compare (suit,rank)
@@ -78,10 +85,6 @@ public class Card implements Comparable<Card> {
     if (suit != other.suit)
       return false;
     return true;
-  }
-
-  public String compactToString() {
-    return getRank().toString() + getSuit().compactToString();
   }
 
 }

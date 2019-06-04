@@ -3,8 +3,8 @@ package Players;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import GamePlay.Round;
-import GamePlay.Round.Trick;
+import GamePlay.Game.Round;
+import GamePlay.Game.Round.Trick;
 import playingCards.Card;
 import playingCards.Hand;
 import playingCards.OrderedCardSet;
@@ -65,20 +65,37 @@ public abstract class Player {
   // only call after everyone has chosen what to pass
   public void passCards(OrderedCardSet cardsToPass, Player player) {
     for (Card card : cardsToPass) {
+      // remove each card
       removeFromHand(card);
     }
+    // then give them to the other player
     player.receiveCards(cardsToPass, getName());
   }
 
+  // receive cards from player
   public void receiveCards(OrderedCardSet cards, String playerName) {
+    // sort them, to prevent knowing the order they were picked
     cards.sort();
     printStream.println("\nCards recieved from " + playerName + ":");
     for (Card card : cards) {
+      // add each card to hand, and display card to user
       addToHand(card);
       printStream.println(card);
     }
+    // resort hand
     getHand().sort();
     printStream.println();
+  }
+
+  // display 'name (type)' to given print stream
+  public void displayNameAndType(PrintStream givenPrintStream) {
+    String type;
+    if (this instanceof Players.HumanPlayer) {
+      type = "human";
+    } else {
+      type = "computer";
+    }
+    givenPrintStream.println(getName() + " (" + type + ")");
   }
 
 }
