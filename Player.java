@@ -51,7 +51,7 @@ public abstract class Player {
     if (hand.contains(card)) {
       hand.remove(card);
     } else {
-      printStream.println("Unsuccessfully tried to remove " + card + " from " + name);
+      printStream.println("WARNING: Unsuccessfully tried to remove " + card + " from " + name);
     }
   }
 
@@ -59,7 +59,9 @@ public abstract class Player {
   public abstract Card pickCardToPlay(Round round, Trick trick);
 
   // which cards to pass, given pass direction and game state
-  public abstract OrderedCardSet pickCardsToPass(String playerName); // should have other param
+  // should really have more information provided as parameters (game score at
+  // least)
+  public abstract OrderedCardSet pickCardsToPass(String playerName);
 
   // these remove/add 3 cards to respective hands
   // only call after everyone has chosen what to pass

@@ -18,10 +18,8 @@ public class HumanPlayer extends Player {
   @Override
   public Card pickCardToPlay(Round round, Trick trick) {
     // display hand to player
-    printStream.println();
     printStream.println("Your hand:");
     getHand().display(printStream);
-    printStream.println();
     // instructions
     printStream.println("Specify cards by entering their corresponding index:");
     // show options
@@ -53,10 +51,8 @@ public class HumanPlayer extends Player {
   @Override
   public OrderedCardSet pickCardsToPass(String playerName) {
     // display hand to player
-    printStream.println();
     printStream.println("Your hand:");
     getHand().display(printStream);
-    printStream.println();
     // instructions
     printStream.println("Enter three distinct indices of cards to pass to " + playerName + ":");
     // show options

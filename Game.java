@@ -30,21 +30,14 @@ public class Game {
   // initialize things and remove the lowest clubs from the deck until an even
   // split remains
   public Game(List<Player> players) {
-    // set players
+    // set (number of) players
     this.players = players;
-    // set number of players
     numberOfPlayers = players.size();
+    // display player list to all
     displayPlayers();
-    // discard the 2D and then lowest Spade until there is an even split
-    // (assumes deck is sorted)
-    if (deck.size() % numberOfPlayers > 0) {
-      printStream.println("Playing without the " + Card.twoOfDiamonds + ".");
-      deck.remove(Card.twoOfDiamonds);
-    }
-    while (deck.size() % numberOfPlayers > 0) {
-      printStream.println("Playing without the " + deck.getFirst() + ".");
-      deck.removeFirst();
-    }
+    printStream.println();
+    // remove cards from deck until they can be dealt out evenly
+    prepareDeck();
     // set lowest card, to lead each round
     startingCard = deck.getFirst();
   }
@@ -59,6 +52,25 @@ public class Game {
     printStream.println("The players:");
     for (Player player : players) {
       player.displayNameAndType(printStream);
+    }
+  }
+
+  // discard the 2D and then lowest Clubs until there is an even split
+  // (assumes deck is sorted)
+  private void prepareDeck() {
+    // first remove 2D
+    if (deck.size() % numberOfPlayers > 0) {
+      printStream.println("Playing without the " + Card.twoOfDiamonds + ".");
+      deck.remove(Card.twoOfDiamonds);
+    }
+    // then remove lowest spades
+    while (deck.size() % numberOfPlayers > 0) {
+      printStream.println("Playing without the " + deck.getFirst() + ".");
+      deck.removeFirst();
+    }
+    // if printed messages above, then print a new line now
+    if (deck.size() < 52) {
+      printStream.println();
     }
   }
 
@@ -130,10 +142,7 @@ public class Game {
 
   // to display after each round
   private void displayScoresHistory() {
-    int maxNameWidth = 03;
-    for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
-      maxNameWidth = Math.max(maxNameWidth, players.get(playerIndex).getName().length());
-    }
+    int maxNameWidth = getNameDisplayWidth();
     printStream.println("Scores:");
     for (int playerIndex = 0; playerIndex < numberOfPlayers; playerIndex++) {
       printStream.printf("%" + maxNameWidth + "s ", players.get(playerIndex).getName());
@@ -150,12 +159,9 @@ public class Game {
   // display the winner
   private void displayWinner() {
     int winner = getWinner(getCurrentScore());
-    printStream.println();
-    printStream.print("The winner is " + players.get(winner).getName() + ".");
-    if (players.get(winner) instanceof Players.HumanPlayer) {
-      // if the winner is human controlled then congratulate them
-      printStream.println(" Congratulations!");
-    }
+    printStream.println("The winner is " + players.get(winner).getName() + ".");
+    // congratulate the player in their print stream
+    players.get(winner).getPrintStream().println("Congratulations, you won!");
   }
 
   // actually play the game
@@ -173,9 +179,20 @@ public class Game {
       addScore(round.getScore());
       displayScoresHistory();
       printStream.println();
+      printStream.println();
+      printStream.println();
     }
     // display winner
     displayWinner();
+  }
+
+  // the max length of a player name (\geq 3), for displaying purposes
+  private int getNameDisplayWidth() {
+    int maxNameWidth = 03;
+    for (int otherPlayerIndex = 0; otherPlayerIndex < numberOfPlayers; otherPlayerIndex++) {
+      maxNameWidth = Math.max(maxNameWidth, players.get(otherPlayerIndex).getName().length());
+    }
+    return maxNameWidth;
   }
 
   public class Round {
@@ -261,7 +278,7 @@ public class Game {
     private boolean isOver() {
       return getTricksPlayed() == 52 / numberOfPlayers;
       // may be less than 52 cards in deck if not 4 players
-      // still works
+      // still works, as / ignores remainder
     }
 
     // actually play the round
@@ -298,7 +315,9 @@ public class Game {
         firstToPlay = trick.getWinner();
         trick.displayWinner();
         trick.updateScore();
+        printStream.println();
       }
+      printStream.println();
     }
 
     @SuppressWarnings("serial")
@@ -391,13 +410,7 @@ public class Game {
 
       // display that a player played a card into the trick
       private void displayCardPlayed(String name, Card card) {
-        // from here... is copied from Game (bad!) // TODO generalize to helper method
-        int maxNameWidth = 03;
-        for (int otherPlayerIndex = 0; otherPlayerIndex < numberOfPlayers; otherPlayerIndex++) {
-          maxNameWidth = Math.max(maxNameWidth, players.get(otherPlayerIndex).getName().length());
-        }
-        // ...to here
-        printStream.printf("%-" + maxNameWidth + "s plays " + card, name);
+        printStream.printf("%-" + getNameDisplayWidth() + "s plays " + card, name);
         printStream.println();
       }
 
